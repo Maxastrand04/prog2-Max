@@ -25,7 +25,7 @@ class Haj(Fisk):
 
 Torsken = Torsk("Torsken", 300, 30)
 
-Hajen = Haj("Hajen", 280, 40)
+Hajen = Haj("Hajen", 200, 40)
 
 def fånga():
     if Torsken.hastighet >= 30 and Torsken.maxdjup - Hajen.maxdjup > 0:
