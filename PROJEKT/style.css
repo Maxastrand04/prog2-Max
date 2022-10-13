@@ -1,20 +1,10 @@
 body {
+    margin-top: 5%;
     background-color: rgb(82, 19, 6);
-    /*border: 2px solid #fff;*/
 }
 
-.center {
-    display: block;
-    margin-left: 5%;
-    float: left;
-    width: 40%;
 
-    /*margin-top: auto;
-    margin-bottom: auto;
-    height: 50%;*/
-
-  }
-
+/* Själva textchatten*/
 #message-container{
     width: 30%;
     float: right;
@@ -24,21 +14,27 @@ body {
     border: 5px solid white;
 }
 
-#message-container div{
-}
-
+/* Det som finns i textchatten */
 #send-container{
+    /* Positioner */
     margin-right: auto;
     margin-left: 5%;
     margin-top: 5%;
-    margin-bottom: auto;
+    margin-bottom: 5%;
     width: 30%;
     color: white;
     font-size: 22px;
 }
 
+/* Spelbrädet */
 img {
+    /* Linjen runt brädet */
     border-radius: 8px;
     border: 5px solid white;
-
+    
+    /* position av brädet */
+    display: block;
+    margin-left: 5%;
+    float: left;
+    width: 40%;
 }
