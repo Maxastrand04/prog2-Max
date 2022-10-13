@@ -1,0 +1,44 @@
+body {
+    background-color: rgb(82, 19, 6);
+    /*border: 2px solid #fff;*/
+}
+
+.center {
+    display: block;
+    margin-left: 5%;
+    float: left;
+    width: 40%;
+
+    /*margin-top: auto;
+    margin-bottom: auto;
+    height: 50%;*/
+
+  }
+
+#message-container{
+    width: 30%;
+    float: right;
+    margin-right: 5%;
+    background-color: rgb(112, 54, 42);
+    border-radius: 8px;
+    border: 5px solid white;
+}
+
+#message-container div{
+}
+
+#send-container{
+    margin-right: auto;
+    margin-left: 5%;
+    margin-top: 5%;
+    margin-bottom: auto;
+    width: 30%;
+    color: white;
+    font-size: 22px;
+}
+
+img {
+    border-radius: 8px;
+    border: 5px solid white;
+
+}
