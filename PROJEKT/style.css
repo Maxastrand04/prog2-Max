@@ -3,38 +3,72 @@ body {
     background-color: rgb(82, 19, 6);
 }
 
-
-/* Själva textchatten*/
-#message-container{
-    width: 30%;
-    float: right;
-    margin-right: 5%;
-    background-color: rgb(112, 54, 42);
-    border-radius: 8px;
-    border: 5px solid white;
-}
-
-/* Det som finns i textchatten */
-#send-container{
-    /* Positioner */
-    margin-right: auto;
-    margin-left: 5%;
-    margin-top: 5%;
-    margin-bottom: 5%;
-    width: 30%;
-    color: white;
-    font-size: 22px;
-}
-
 /* Spelbrädet */
-img {
-    /* Linjen runt brädet */
-    border-radius: 8px;
-    border: 5px solid white;
-    
-    /* position av brädet */
-    display: block;
-    margin-left: 5%;
+
+.card {
+    background-color: rgb(112, 54, 42);
+    border: 3px solid rgb(161, 161, 161);
+    color: rgb(161, 161, 161);
+    border-radius: .5rem;
+    padding: .5rem;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: .5rem;
+    gap: .25em;
+}
+
+/* design av knapparna */
+.button{
+    background-color: rgb(112, 54, 42);
+    border: 1px solid rgb(161, 161, 161);
+    border-radius: 3px;
+    color: rgb(161, 161, 161);
+}
+
+/* knappen för att bjuda in */
+#invite {
+    float: right;
+}
+
+/* ser till att spelet inte är igång när inbjudan är framme*/
+#step2 {
+    display: none;
+}
+
+.piece {
+    height: 50px;
+    width: 50px;
+}
+
+.brown {
     float: left;
-    width: 40%;
+    background-color: brown;
+    border: 1px solid black;
+    height: 50px;
+    width: 50px;
+
+}
+
+.white {
+    float: left;
+    background-color: beige;
+    border: 1px solid black;
+    height: 50px;
+    width: 50px;
+}
+
+.boardLines {
+    height: 52px;
+    width: 800px;
+}
+
+#board{
+    margin-left:200px;
+    margin-right:auto;
+    float: left;
 }
