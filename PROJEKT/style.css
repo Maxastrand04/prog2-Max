@@ -33,6 +33,7 @@ body {
 /* knappen för att bjuda in */
 #invite {
     float: right;
+    margin-right: 5%;
 }
 
 /* ser till att spelet inte är igång när inbjudan är framme*/
@@ -47,10 +48,10 @@ body {
 
 .brown {
     float: left;
-    background-color: brown;
+    background-color: rgb(118, 43, 0);
     border: 1px solid black;
-    height: 50px;
-    width: 50px;
+    height: 48px;
+    width: 48px;
 
 }
 
@@ -58,17 +59,18 @@ body {
     float: left;
     background-color: beige;
     border: 1px solid black;
-    height: 50px;
-    width: 50px;
+    width: 48px;
+    height: 48px;
 }
 
 .boardLines {
-    height: 52px;
-    width: 800px;
+    height: 50px;
+    width: 400px;
 }
 
 #board{
     margin-left:200px;
     margin-right:auto;
     float: left;
+    border: 2px solid white;
 }

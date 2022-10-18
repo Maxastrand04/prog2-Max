@@ -1,6 +1,10 @@
 class Djur:
     def __init__(self, namn):
         self.namn = namn
+    def at(self):
+        print("nom nom nom")
+    def sov(self):
+        print("Sleepy boi")
 
 class Fågel(Djur):
     def __init__(self, namn, vingspann):
@@ -11,6 +15,8 @@ class Fisk(Djur):
     def __init__(self, namn, maxdjup):
         super().__init__(namn)
         self.maxdjup = maxdjup
+    def simma(self):
+        print("Fisken simmar")
 
 class Torsk(Fisk):
     def __init__(self, namn, maxdjup, hastighet):
@@ -21,6 +27,8 @@ class Haj(Fisk):
     def __init__(self, namn, maxdjup, antalTänder):
         super().__init__(namn, maxdjup)
         self.antalTänder = antalTänder
+    def at(self, djur):
+        print("hajen äter", djur, "smaskens!")        
 
 
 Torsken = Torsk("Torsken", 300, 30)
@@ -34,3 +42,6 @@ def fånga():
         print("dåligt")
 
 fånga()
+
+Hajen.at("fisk")
+Torsken.simma()
