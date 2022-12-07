@@ -47,12 +47,22 @@ function createBoard() {
     }
 }
 
+function checkFunction(){
+  console.log("tjooo")
+}
+
 function addPiece(y, x, typeOfPiece, side){
   const choosenSquare = document.getElementById(`square ${y}${x}`)
   let piece = document.createElement("img")
   piece.src = `images/${side} pieces/${side} ${typeOfPiece}.png`
   piece.className ="piece"
   piece.draggable = "true"
+  piece.ondragstart = function(){
+    console.log("Bree")
+  }
+  piece.ondragend = function(){
+    console.log("tjoo")
+  }
   piecesArray.push(piece)
   choosenSquare.appendChild(piece)
   
