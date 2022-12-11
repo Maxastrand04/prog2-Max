@@ -2,52 +2,71 @@ from tkinter import *
 
 import random
 
+players = ["1", "2"]
+
+turn = players[0] #Spelare 1 börjar
+
+ships_player1 = 5   #Antalet skepp för spelare 1
+
+ships_player2 = 5   #Antalet skepp för spelare 2
  
-
-def next_turn(row, column):
-
-    print("hi")
-
- 
-
-def check_winner():
-
-    print("no")
-
- 
+points = [0, 0]     #Poängräknare
 
 def hit_ships(row, column, team):
 
     global turn
 
+    global points
+
     if turn == players[0]:
         
-        turn = players[1]   #Ser till att det blir varannan runda
-        
         if team == 1:
-            if board2_setup[row][column]["text"] != "":
+
+            if board1_gameplay[row][column]["text"] == "":
+
+                if board2_setup[row][column]["text"] != "":
                 
-                board1_gameplay[row][column]["text"] = "X"
-                board1_gameplay[row][column].config(bg="red")
-            else:
+                    board1_gameplay[row][column].config(text= "X", bg="red")
+
+                    points[0] += 1  #Ger poäng till spelare 1
+
+                    if check_win(1) is True:
+                        label.config(text=(players[0] + " Vann!"))
+                else:
                 
-                board1_gameplay[row][column]["text"] = "O"
-                board1_gameplay[row][column].config(bg="grey")
-        label.config(text=(turn + " spelares tur"))
-    if turn == players[1]:
+                    board1_gameplay[row][column].config(text="O", bg="grey")
+                
+                turn = players[1]   #Ser till att det blir varannan runda
+
+                label.config(text=("Spelare " + turn + " tur"))
         
-        turn = players[0]   #Ser till att det blir varannan runda
+
+        
+
+    elif turn == players[1]:
         
         if team == 2:
-            if board1_setup[row][column]["text"] != "":
+
+            if board2_gameplay[row][column]["text"] == "":
+
+                if board1_setup[row][column]["text"] != "":
                 
-                board2_gameplay[row][column]["text"] = "X"
-                board2_gameplay[row][column].config(bg="red")
-            else:
+                    board2_gameplay[row][column].config(text= "X", bg="red")
+
+                    points[1] += 1 #Ger poäng till spelare 2
+
+                    if check_win(2) is True:
+                        label.config(text=(players[1] + " Vann!"))
+                else:
                 
-                board2_gameplay[row][column]["text"] = "O"
-                board2_gameplay[row][column].config(bg="grey")
-        label.config(text=(turn + " spelares tur"))
+                    board2_gameplay[row][column].config(text="O", bg="grey")
+                
+                turn = players[0]   #Ser till att det blir varannan runda
+
+                label.config(text=("Spelare " + turn + " tur"))
+
+    print(points)
+    return turn
  
 
 def place_ships(row, column, team):
@@ -62,11 +81,16 @@ def place_ships(row, column, team):
 
         label.config(text=(players[0] + " har " + str(ships_player1) + " skepp kvar att sätta ut!"))
 
-       
+        board1_setup[row][column].config(text="S", bg="red")
 
-        board1_setup[row][column]["text"] = "S"
 
-        board1_setup[row][column].config(bg="red")
+    elif ships_player1 >= 0 and board1_setup[row][column]["text"] != "":
+
+        ships_player1 += 1
+
+        label.config(text=(players[0] + " har " + str(ships_player1) + " skepp kvar att sätta ut!"))
+
+        board1_setup[row][column].config(text="",bg="#F0F0F0")
 
  
 
@@ -76,34 +100,47 @@ def place_ships(row, column, team):
 
         label.config(text=(players[1] + " har " + str(ships_player2) + " skepp kvar att sätta ut!"))
 
-        board2_setup[row][column]["text"] = "S"
+        board2_setup[row][column].config(text="S", bg="red")
 
-        board2_setup[row][column].config(bg="red")
+    
+    elif ships_player2 >= 0 and board2_setup[row][column]["text"] != "":
 
-       
+        ships_player2 += 1
+
+        label.config(text=(players[1] + " har " + str(ships_player2) + " skepp kvar att sätta ut!"))
+
+        board2_setup[row][column].config(text="",bg="#F0F0F0")
+
+def check_win(player):
+    global points
+
+    if player == 1:
+        if points[0] == 5:
+            return True
+
+    elif player == 2:
+        if points[1] == 5:
+            return True
 
 def new_game():
 
     None
 
- 
+def fix_function(): #Ser till att när man har tryckt på confirm kan så kan inte skeppen tas bort eller flytta
+    
+    global ships_player1
+    global ships_player2
+
+    if ships_player1 >= 0:
+        ships_player1 -= 1
+
+    else:
+        ships_player2 -= 1
 
 window = Tk()
 
 window.title("Battle Ships")
 
- 
-
-players = ["1", "2"]
-
-turn = players[0]
-
-ships_player1 = 5
-
-ships_player2 = 5
-
-
- 
 
 board1_setup = [[0,0,0,0,0],
 
@@ -171,7 +208,8 @@ board1_gameplay =   [[0,0,0,0,0],
 frame1_gameplay = Frame(window)
 
 
-player1_setup_button = Button(text="Confirm", font=("consoloas", 20), command=lambda: [frame1.pack_forget(), frame1_gameplay.pack(side="left"), player1_setup_button.pack_forget(), player2_setup_button.pack()]) 
+player1_setup_button = Button(text="Confirm", font=("consoloas", 20), command=lambda: [frame1.pack_forget(), frame1_gameplay.pack(side="left"), player1_setup_button.pack_forget(), player2_setup_button.pack(), fix_function(),
+                             label.config(text=(players[1] + " har " + str(ships_player2) + " skepp kvar att sätta ut!")) ]) 
 player1_setup_button.pack(side="left")
 
 
@@ -188,7 +226,7 @@ board2_gameplay =   [[0,0,0,0,0],
                 ]
 
 
-player2_setup_button = Button(text="Confirm", font=("consoloas", 20), command=lambda: [frame2.pack_forget(), frame2_gameplay.pack(side="right"), player2_setup_button.pack_forget()]) 
+player2_setup_button = Button(text="Confirm", font=("consoloas", 20), command=lambda: [frame2.pack_forget(), frame2_gameplay.pack(side="right"), player2_setup_button.pack_forget(), fix_function()]) 
 
 
 frame2_gameplay = Frame(window)
@@ -201,8 +239,6 @@ for row in range(5):
 
         board1_setup[row][column].grid(row=row,column=column)
 
- 
-
 for row in range(5):
 
     for column in range(5):
@@ -213,6 +249,7 @@ for row in range(5):
 
 
 
+
 for row in range(5):
 
     for column in range(5):
@@ -220,7 +257,6 @@ for row in range(5):
         board1_gameplay[row][column] = Button(frame1_gameplay, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: hit_ships(row, column, 1))
 
         board1_gameplay[row][column].grid(row=row,column=column)
-
 
 for row in range(5):
 
