@@ -183,11 +183,11 @@ def confirm(team):  #Funktion för när man ska godkänna positionerna för skep
             label.config(text=(players[0] + " tur"))
 
 
-window = Tk()
+window = Tk()   #skapar ett fönster/rot
 
-window.title("Battle Ships")
+window.title("Battle Ships")    #ger rutan en titel
 
-
+#En tom lista för knapparna att läggas in i en 5x5 storlek
 board1_setup = [[0,0,0,0,0],
                 [0,0,0,0,0],
                 [0,0,0,0,0],
@@ -196,13 +196,13 @@ board1_setup = [[0,0,0,0,0],
                 ]
 
  
-
+#Lägger även in detta i en frame för att kunna presentera brädet och kunna ta bort och lägga till enskilda bräden
 frame1 = Frame(window)
 
-frame1.place(relx= 0, rely= 1, anchor="sw")
+frame1.place(relx= 0, rely= 1, anchor="sw") #Vilken position brädet har
 
  
-
+#Samma som förra men för spelare 2
 board2_setup = [[0,0,0,0,0],
                 [0,0,0,0,0],
                 [0,0,0,0,0],
@@ -217,17 +217,19 @@ frame2 = Frame(window)
 frame2.place(relx=1, rely=1, anchor="se")
 
 
+#En rubrik som ändras beroende på vad som sker i spelet för att ge information om vad man ska göra etc
 label = Label(text=(players[0] + " har " + str(ships_player1) + " skepp kvar att sätta ut!"), font=("consolas", 40))
 
 label.place(relx=0.5, anchor="n")
 
  
-
+#Knapp för att starta om spelet
 restart_button = Button(text="restart", font=("consoloas", 20), command=new_game)
 
 restart_button.place(relx=0.5,rely=0.2,anchor="n")
 
 
+#Bräde för själva spelgången när man ska skjuta
 board1_gameplay =   [[0,0,0,0,0],
                     [0,0,0,0,0],
                     [0,0,0,0,0],
@@ -238,11 +240,12 @@ board1_gameplay =   [[0,0,0,0,0],
 
 frame1_gameplay = Frame(window)
 
+#Knapp för att godkänna postionen av skeppen
+player1_setup_button = Button(text="Confirm", font=("consoloas", 20), command=lambda :confirm(1)) 
+player1_setup_button.place(relx=0.5,rely=0.5,anchor="center") #Placeras ut direkt
 
-player1_setup_button = Button(text="Confirm", font=("consoloas", 20), command=confirm(1)) 
-player1_setup_button.place(relx=0.5,rely=0.5,anchor="center")
 
-
+#Samma men för spelare 2
 board2_gameplay =   [[0,0,0,0,0],
                     [0,0,0,0,0],
                     [0,0,0,0,0],
@@ -250,12 +253,16 @@ board2_gameplay =   [[0,0,0,0,0],
                     [0,0,0,0,0],
                 ]
 
-
-player2_setup_button = Button(text="Confirm", font=("consoloas", 20), command= confirm(2)) 
+#Knapp för att godkänna position av skepp spelare 2
+#Placeras ut när det är det är spelare 2 tur att placera skepp
+player2_setup_button = Button(text="Confirm", font=("consoloas", 20), command=lambda :confirm(2)) 
 
 
 frame2_gameplay = Frame(window)
 
+
+#Loopar för att skapa knapparna till spelbrädet
+#En loop för varje bräde
 for row in range(5):
 
     for column in range(5):
