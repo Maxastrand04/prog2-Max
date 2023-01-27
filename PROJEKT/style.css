@@ -46,7 +46,7 @@ body {
     width: 50px;
 }
 
-.brown {
+.brownSquare {
     float: left;
     background-color: rgb(118, 43, 0);
     border: 1px solid black;
@@ -55,7 +55,7 @@ body {
 
 }
 
-.white {
+.whiteSquare {
     float: left;
     background-color: beige;
     border: 1px solid black;
