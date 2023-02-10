@@ -178,6 +178,8 @@ for (let j = 0; j < squareArray.length; j++){
         let endy = stringToArray[1] //får fram y-koordinaten
         let endx = stringToArray[2] //får fram x-koordinaten
 
+        lookForCheck(0,endx,endy, "black")
+
         setTimeout( function(){
 
           let children = Array.from(square.children)
@@ -186,28 +188,44 @@ for (let j = 0; j < squareArray.length; j++){
           let movedPiece = children.pop()
           let moveCheck
 
+          let checkClearWay = checkObstacles(startx, starty, endx, endy, movedPiece)
+
+          if (checkClearWay === false){
+            let returnToSquare = document.getElementById(startSquare)
+            returnToSquare.append(draggedItem)
+            return
+          }
+
           //Kollar ifall pjäsen är en bonde för att den kräver andra parametrar
           if (movedPiece.id == "pawn"){
 
+            //Antar att pjäsen INTE dödar någon och kollar ifall den gör i if-satsen
+            let kill = false
+
+            //kollar om pjäsen tar en annan för att använda andra regler
+            if (children.length > 0){
+              kill = true
+            }
+
             //Kollar om bonden har flyttats tidigare för att kunna tillåta dubbelsteg
             let pawnsThatAreMoved = [...document.getElementsByClassName("moved")]
-            let firstMove
+            let firstMove = true
             if (pawnsThatAreMoved.includes(movedPiece)){
               firstMove = false
             }
-            else {
-              firstMove = true
-            }
 
+            //Kollar vilken sida bonden tillhör för att se till att den kan förflyttas åt rätt håll
             let team = movedPiece.className
             let stringToArray = team.split(" ")
             team = stringToArray[1]
 
-            moveCheck = pawnMove(startx, starty, endx, endy, 0, team, firstMove)
-            
-            movedPiece.className += " moved"
+            moveCheck = pawnMove(startx, starty, endx, endy, kill, team, firstMove)
+            if (moveCheck === true){
+              movedPiece.className += " moved"
+            }
           }
 
+          //När andra pjäser förflyttas så används denna istället
           else{
             moveCheck = eval(`${movedPiece.id}Move(${startx}, ${starty}, ${endx}, ${endy})`)
             
@@ -224,11 +242,149 @@ for (let j = 0; j < squareArray.length; j++){
           //Ser till att den första pjäsen som var i rutan blir borttagen
           else {
             if (children.length >= 1){
-              square.removeChild(square.firstElementChild)
+              let movedPieceClass = movedPiece.className
+              movedPieceClass = movedPieceClass.split(" ")
+              let movedPieceTeam = movedPieceClass[1]
+
+              let childrenPiece = children[0]
+              let childrenPieceClass = childrenPiece.className
+              childrenPieceClass = childrenPieceClass.split(" ")
+              let childrenPieceTeam = childrenPieceClass[1]
+
+              if (movedPieceTeam !== childrenPieceTeam){
+                square.removeChild(square.firstElementChild)
+              }
+              else {
+                let returnToSquare = document.getElementById(startSquare)
+                returnToSquare.append(draggedItem)
+              }
             }
           }  
         }, 0)
       }
     }
   )
+}
+
+export function checkObstacles(startx, starty, endx, endy, team){
+  
+  //Antar att vägen är ledig och ändrar värdet till "false" om detta inte stämmer
+  let emptyLine = true
+
+  let check = false
+
+  //Förflyttning vertikalt
+  if (startx === endx){
+    //Om man rör sig åt negativ riktning
+    if (starty > endy){
+      for (let y=starty; y > endy; y--){
+        let square = document.getElementById(`square ${y} ${startx}`)
+        let children = Array.from(square.children)
+        if (children.length > 0){
+          emptyLine = false
+        }
+      }
+    }
+    //Om man rör sig åt positiv riktning
+    if (starty < endy){
+      for (let y=starty; y < endy; y++){
+        let square = document.getElementById(`square ${y} ${startx}`)
+        let children = Array.from(square.children)
+        if (children.length > 0){
+          emptyLine = false
+        }
+      }
+    }
+  }
+  //Förflyttning horizontellt
+  if (starty === endy){
+    if (startx > endx){
+      for (let x=startx; x > endx; x--){
+        let square = document.getElementById(`square ${starty} ${x}`)
+        let children = Array.from(square.children)
+        if (children.length > 0){
+          emptyLine = false
+        }
+      }
+    }
+    if (startx < endx){
+      for (let x=startx; x < endx; x++){
+        let square = document.getElementById(`square ${starty} ${x}`)
+        let children = Array.from(square.children)
+        if (children.length > 0){
+          emptyLine = false
+        }
+      }
+    }
+  }
+
+  if (Math.abs(startx-endx) === Math.abs(starty-endy)){
+    console.log("sui")
+
+  }
+
+  return emptyLine
+}
+
+function lookForCheck (piecetype, opponentx, opponenty, team){
+  
+  //Börjar med att anta att det är shack och om en rutan är blockerad ivägen så blir check = false
+  let check = true
+
+  //[0] = svarta kungen, [1] = vita kungen
+  let kingarray = [...king]
+
+  if (team === "black"){
+    let blackKing = kingarray[0]
+    let blackKingSquare = blackKing.parentNode.id
+    blackKingSquare = blackKingSquare.split(" ")
+    
+    let kingx = blackKingSquare[2]
+    let kingy = blackKingSquare[1]
+
+    if (opponentx === kingx){
+      if ( opponenty > kingy){
+        for (let y=opponenty-1; y > kingy; y--){
+          let square = document.getElementById(`square ${y} ${opponentx}`)
+          let children = Array.from(square.children)
+          if (children.length > 0){
+            check = false
+            return
+          }
+        }
+      }
+      if ( opponenty < kingy){
+        for (let y=opponenty+1; y > kingy; y++){
+          let square = document.getElementById(`square ${y} ${oppponentx}`)
+          let children = Array.from(square.children)
+          if (children.length > 0){
+            check = false
+            return
+          }
+        }
+      }
+    }
+    if (opponenty === kingy){
+      if ( opponentx > kingx){
+        for (let x=oppponentx-1; x > kingx; x--){
+          let square = document.getElementById(`square ${opponenty} ${x}`)
+          let children = Array.from(square.children)
+          if (children.length > 0){
+            check = false
+            return
+          }
+        }
+      }
+      if ( opponentx < kingx){
+        for (let x=oppponentx+1; x > kingx; x++){
+          let square = document.getElementById(`square ${opponenty} ${x}`)
+          let children = Array.from(square.children)
+          if (children.length > 0){
+            check = false
+            return
+          }
+        }
+      }
+    }
+  }
 }

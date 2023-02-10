@@ -127,4 +127,3 @@ export function pawnMove(xstart, ystart, xfinnish, yfinnish, kill, team, firstmo
         }
     }
 }
-
