@@ -14,8 +14,6 @@ ships_player2 = 5   #Antalet skepp för spelare 2
  
 points = [0, 0, 0]     #Poängräknare [0] = spelare 1, [1] = spelare 2, [2] = AI
 
-singleplayer_check = False
-
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5050
 
@@ -52,33 +50,33 @@ def hit_ships(row, column, team):   #funktion för när man ska skjuta skepp
     global turn
     global points
 
-    if singleplayer_check == False:
-        if turn == players[0]:  #Kollar om det är första spelarens tur
-        
-            if team == 1:   #Kollar om det är den första spelaren som trycker
 
-                if board1_gameplay[row][column]["text"] == "":  #Kollar ifall rutan är tom
+    if turn == players[0]:  #Kollar om det är första spelarens tur
 
-                    if board2_setup[row][column]["text"] != "": #Kollar ifall den rutans koordinater matchar motståndarens utplacerade skepp
+        if team == 1:   #Kollar om det är den första spelaren som trycker
+
+            if board1_gameplay[row][column]["text"] == "":  #Kollar ifall rutan är tom
+
+                if board2_setup[row][column]["text"] != "": #Kollar ifall den rutans koordinater matchar motståndarens utplacerade skepp
                         
-                        board1_gameplay[row][column].config(text= "X", bg="red")    #fyller i rutan som en träff
+                    board1_gameplay[row][column].config(text= "X", bg="red")    #fyller i rutan som en träff
 
-                        points[0] += 1  #Ger poäng till spelare 1
+                    points[0] += 1  #Ger poäng till spelare 1
                         
-                    else:
+                else:
                 
-                        board1_gameplay[row][column].config(text="O", bg="grey")    #fyller i rutan som en miss
+                    board1_gameplay[row][column].config(text="O", bg="grey")    #fyller i rutan som en miss
                 
-                    turn = players[1]   #Ser till att det blir varannan runda
+                turn = players[1]   #Ser till att det blir varannan runda
 
 
-                    if check_win(1) is True:    #Kollar om spelare 1 har vunnit och avbryter spelet
-                        label.config(text=(players[0] + " Vann!"))
-                        frame1_gameplay.place_forget()
-                        frame2_gameplay.place_forget()
+                if check_win(1) is True:    #Kollar om spelare 1 har vunnit och avbryter spelet
+                    label.config(text=(players[0] + " Vann!"))
+                    frame1_gameplay.place_forget()
+                    frame2_gameplay.place_forget()
                 
-                    else:   #Ifall spelare 1 inte har vunnit så går rundan över till nästa spelare
-                        label.config(text=(turn + " tur"))
+                else:   #Ifall spelare 1 inte har vunnit så går rundan över till nästa spelare
+                    label.config(text=(turn + " tur"))
         
 
         #Nästa del är samma som första delen men för spelare två
@@ -110,49 +108,7 @@ def hit_ships(row, column, team):   #funktion för när man ska skjuta skepp
 
         return turn
 
-    elif singleplayer_check == True:
-
-        if board1_gameplay[row][column]["text"] == "":  #Kollar ifall rutan är tom
-
-            if board_AI[row][column]["text"] != "": #Kollar ifall den rutans koordinater matchar motståndarens utplacerade skepp
-                    
-                board1_gameplay[row][column].config(text= "X", bg="red")    #fyller i rutan som en träff
-                
-                points[0] += 1  #Ger poäng till spelare 1
-
-                label.config(text=("Du har "+ str(5-points[0]) + " skepp kvar att träffa"))
-            else:
-                board1_gameplay[row][column].config(text= "O", bg="grey")
-
-                
-            if check_win(1) is True:    #Kollar om spelare 1 har vunnit och avbryter spelet
-                label.config(text=(players[0] + " Vann!"))
-                frame_AI_gameplay.place_forget()
-
-            while True:
-            
-                AI_row = random.randint(0,4)
-                AI_column = random.randint(0,4)
-            
-                if board_AI_gameplay[AI_row][AI_column]["text"] == "":
-                    
-                    if board1_setup[AI_row][AI_column]["text"] != "":
-
-                        board_AI_gameplay[AI_row][AI_column].config(text= "X", bg="red")
-
-                        points[2] += 1
-                    else:
-                        board_AI_gameplay[AI_row][AI_column].config(text= "O", bg="grey")
-                
-                    if check_win(1) is True:
-                        None
-                    elif check_win("AI") is True:    #Kollar om spelare 1 har vunnit och avbryter spelet
-                        label.config(text="Du förlorade :(")
-                        frame1_gameplay.place_forget()
-                
-                    break
-
-
+    
 def place_ships(row, column, team):
     
     #row = vilken rad
@@ -216,16 +172,6 @@ def place_ships(row, column, team):
     else:
         player2_setup_button.config(bg="#F0F0F0")
 
-def place_ships_AI():   #Slumpar placeringen av skepp som AI:N sätter ut
-
-    AI_ships = 5
-
-    while AI_ships >= 0:
-        row = random.randint(0,4)
-        column = random.randint(0,4)
-        if board_AI[row][column]["text"] == "":
-            board_AI[row][column].config(text="S")
-            AI_ships -= 1
 
 
 
@@ -243,9 +189,6 @@ def check_win(player):  #Kollar ifall en spelare har vunnit genom att man har sk
         if points[1] == 5:
             return True
 
-    elif player == "AI":    #Kollar ifall AI:n har vunnit
-        if points[2] == 5:
-            return True
 
 def new_game():
 
@@ -285,35 +228,16 @@ def new_game():
             board2_gameplay[row][column].grid(row=row,column=column)
 
 
-    #Skapar knapparna för AI brädet
-    for row in range(5):
-
-        for column in range(5):
-
-            board_AI_gameplay[row][column] = Button(frame_AI_gameplay, text="", font=("consolas", 40), width=3, height=1)
-
-            board_AI_gameplay[row][column].grid(row=row,column=column)
-
-    for row in range(5):
-
-        for column in range(5):
-
-            board_AI[row][column] = Button(frame_AI, text="", font=("consolas", 40), width=3, height=1)
-
-            board_AI[row][column].grid(row=row,column=column)
-
     #Tar in alla globala variabler för att kunna nollställa dem
     global ships_player1 
     global ships_player2
     global points
-    global singleplayer_check 
 
     ships_player1 = 5
     ships_player2 = 5
     
     points = [0,0,0]
 
-    singleplayer_check = False
 
     player1_setup_button.config(bg="#F0F0F0") #Ser till att "CONFIRM" knappen inte är grön
     player2_setup_button.config(bg="#F0F0F0")
@@ -324,8 +248,8 @@ def new_game():
     label.config(text=("Välkommen till sänka skepp! är det en eller två spelare?"))
     label.place(relx=0.5, anchor="n")
 
-    singleplayer.place(relx=0.2,rely=0.9,anchor="w")
-    multiplayer.place(relx=0.8,rely=0.9,anchor="e")
+    host_button.place(relx=0.2,rely=0.9,anchor="w")
+    join_button.place(relx=0.8,rely=0.9,anchor="e")
 
 
 
@@ -366,29 +290,6 @@ def confirm(team):  #Funktion för när man ska godkänna positionerna för skep
             label.config(text=(players[0] + " tur"))
 
 
-    #För enspelare
-    if ships_player1 <= 0:
-        if team == 3:
-            frame1.place_forget() 
-            setup_button.place_forget() 
-            frame1_gameplay.place(relx= 0, rely=1, anchor="sw")
-            frame_AI_gameplay.place(relx= 1, rely= 1, anchor="se") 
-            label.config(text=("Du har "+ str(5-points[0]) + " skepp kvar att träffa"))
-            fix_function()
-
-def start_singleplayer():
-
-    global singleplayer_check 
-    singleplayer_check = True
-    
-    frame1.place(relx= 0, rely= 1, anchor="sw") #Vilken position brädet har
-    restart_button.place(relx= 0.5, rely= 0.2, anchor="n")
-
-    label.config(text=("Du har "+ str(ships_player1) + " skepp kvar att sätta ut"))
-    setup_button.place(relx=0.5,rely=0.5,anchor="center") #Placeras ut direkt
-    place_ships_AI()
-
-
 def start_multiplayer(host, client):
     if host:
         frame1.place(relx= 0, rely= 1, anchor="sw") #Vilken position brädet har
@@ -421,11 +322,11 @@ label = Label(text=("Välkommen till sänka skepp! är det en eller två spelare
 label.place(relx=0.5, anchor="n")
 
 #Knapparna för att välja vilket "gamemode" man vill spela
-singleplayer = Button(window, text="1 player", command=lambda : [start_singleplayer(), multiplayer.place_forget(), singleplayer.place_forget()])
-singleplayer.place(relx=0.2,rely=0.9,anchor="w")
+host_button = Button(window, text="1 player", command=lambda : [start_singleplayer(), multiplayer.place_forget(), singleplayer.place_forget()])
+host_button.place(relx=0.2,rely=0.9,anchor="w")
 
-multiplayer = Button(window, text="2 players", command=lambda : [start_multiplayer(), multiplayer.place_forget(), singleplayer.place_forget()])
-multiplayer.place(relx=0.8,rely=0.9,anchor="e")
+join_button = Button(window, text="2 players", command=lambda : [start_multiplayer(), multiplayer.place_forget(), singleplayer.place_forget()])
+join_button.place(relx=0.8,rely=0.9,anchor="e")
 
 
 #Knapp för att starta om spelet
@@ -491,10 +392,6 @@ frame1_gameplay = Frame(window)
 
 frame2 = Frame(window)
 
-frame_AI = Frame(window)
-
-frame_AI_gameplay = Frame(window)
-
 #Knapp för att godkänna postionen av skeppen
 
 setup_button = Button(text="Confirm", font=("consoalas", 20), command=lambda: confirm(3))
@@ -540,24 +437,6 @@ for row in range(5):
         board2_gameplay[row][column] = Button(frame2_gameplay, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: hit_ships(row, column, 2))
 
         board2_gameplay[row][column].grid(row=row,column=column)
-
-
-#Skapar knapparna för AI brädet
-for row in range(5):
-
-    for column in range(5):
-
-        board_AI_gameplay[row][column] = Button(frame_AI_gameplay, text="", font=("consolas", 40), width=3, height=1)
-
-        board_AI_gameplay[row][column].grid(row=row,column=column)
-
-for row in range(5):
-
-    for column in range(5):
-
-        board_AI[row][column] = Button(frame_AI, text="", font=("consolas", 40), width=3, height=1)
-
-        board_AI[row][column].grid(row=row,column=column)
 
 window.mainloop()
 
