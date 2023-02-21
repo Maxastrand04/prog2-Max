@@ -1,7 +1,7 @@
 from tkinter import *
 import socket
 import threading
-import random
+import time
 
 players = ["MATS", "TjokisMILLA"]   #En lista för att kunna ändra namnen på spelarna som kör
 
@@ -19,25 +19,42 @@ PORT = 5050
 
 client = None
 
-def host_game(host, port):
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((host, port))
-    server.listen(1)
+def return_imput(e):
+    global client
+    host = e.widget.get()
 
+    try:
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((host, PORT))
+        threading.Thread(target=start_multiplayer, args=(False, client,)).start()
+    except:
+        label.config(text="Felaktig adress försök igen")
+
+def host_game():
+    label.config(text=("IP-Adress: "+ str(HOST)))
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((HOST, PORT))
+    server.listen(1)
+    
     client, addr = server.accept()
     global you 
     you = players[0]
     threading.Thread(target=start_multiplayer, args=(True, client,)).start() 
     server.close()
 
-def connect_to_game(host, port):
-    global client
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect((host, port))
+
+
+def join_game():
+    label.config(text="Skriv in IP-addressen du vill gå med i!")
+
+    text = StringVar
+    IP_adress = Entry(window, textvariable=text)
+    IP_adress.place(relx=0.5, rely=0.5, anchor="center")
+    
+    IP_adress.bind("<Return>", return_imput)
 
     global you
     you = players[1]
-    threading.Thread(target=start_multiplayer, args=(False, client,)).start() 
 
 
 def hit_ships(row, column, team):   #funktion för när man ska skjuta skepp
@@ -118,16 +135,12 @@ def place_ships(row, column, team):
     #Importerar de globala variablerna som ska ändras
     global ships_player1
     global ships_player2
-    global singleplayer_check
 
 
     if ships_player1 > 0 and team == 1 and board1_setup[row][column]["text"] == "": #Kollar så spelaren har skepp att sätta ut och trycker på en tom ruta
 
         ships_player1 -= 1  #Tar bort ett av skeppen
-        if singleplayer_check is False:
-            label.config(text=(players[0] + " har " + str(ships_player1) + " skepp kvar att sätta ut!"))    #Skriver ut hur många skepp som måste sättas ut
-        else:
-            label.config(text=("Du har " + str(ships_player1) + " skepp kvar att sätta ut!"))
+        label.config(text=("Du har " + str(ships_player1) + " skepp kvar att sätta ut!"))
         board1_setup[row][column].config(text="S", bg="red")    #Ändrar rutan för att visa att skeppet är placerat
 
 
@@ -318,14 +331,14 @@ window = Tk()   #skapar ett fönster/rot
 window.title("Battle Ships")    #ger rutan en titel
 
 #En rubrik som ändras beroende på vad som sker i spelet för att ge information om vad man ska göra etc
-label = Label(text=("Välkommen till sänka skepp! är det en eller två spelare?"), font=("consoloas", 32))
+label = Label(text=("Välkommen till sänka skepp! Ska du joina eller hosta?"), font=("consoloas", 32))
 label.place(relx=0.5, anchor="n")
 
 #Knapparna för att välja vilket "gamemode" man vill spela
-host_button = Button(window, text="1 player", command=lambda : [start_singleplayer(), multiplayer.place_forget(), singleplayer.place_forget()])
+host_button = Button(window, text="Host", command=lambda : [join_button.place_forget(), host_button.place_forget(), host_game()])
 host_button.place(relx=0.2,rely=0.9,anchor="w")
 
-join_button = Button(window, text="2 players", command=lambda : [start_multiplayer(), multiplayer.place_forget(), singleplayer.place_forget()])
+join_button = Button(window, text="Join", command=lambda : [join_button.place_forget(), host_button.place_forget(), join_game()])
 join_button.place(relx=0.8,rely=0.9,anchor="e")
 
 
@@ -366,21 +379,6 @@ board2_gameplay =   [[0,0,0,0,0],
                     [0,0,0,0,0],
                     [0,0,0,0,0],
                 ]
-
-#Bräden för AI i singleplayer
-board_AI =      [[0,0,0,0,0],
-                [0,0,0,0,0],
-                [0,0,0,0,0],
-                [0,0,0,0,0],
-                [0,0,0,0,0],
-                ]
-
-board_AI_gameplay = [[0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                    ]
 
 
 #Lägger även in detta i en frame för att kunna presentera brädet och kunna ta bort och lägga till enskilda bräden
