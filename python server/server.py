@@ -45,9 +45,6 @@ def start():
         thread = threading.Thread(target=handleClient, args=(conn, addr))
         thread.start()
         print(f"[ACTIVE CONNECTION] {threading.activeCount() - 1}")
-        onlineUsers.append(addr)
-        onlineUsersConn.append(conn)
-        print(onlineUsers)
 
 
 print("[STARTING] Server is starting ...")

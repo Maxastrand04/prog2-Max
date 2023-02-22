@@ -9,52 +9,60 @@ you = players[0]
 
 turn = players[0] #Spelare 1 börjar
 
-ships_player1 = 5   #Antalet skepp för spelare 1
-ships_player2 = 5   #Antalet skepp för spelare 2
+player_ships = 5
  
-points = [0, 0, 0]     #Poängräknare [0] = spelare 1, [1] = spelare 2, [2] = AI
+points = [0, 0]     #Poängräknare [0] = spelare 1, [1] = spelare 2, [2] = AI
 
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5050
 
 client = None
 
-def return_imput(e):
+def host_game():
+    label.config(text=("Tryck [ENTER] för att lyssna på IP-Adress: "+ str(HOST)))
+    window.bind("<Return>", start_listen)
+
+    global you 
+    you = players[0]
+
+def start_listen(e):
+    global client
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((HOST, PORT))
+    server.listen(1)
+    print("Väntar på anslutning...")
+    client, addr = server.accept()
+    print("Ansluten!")
+    
+    threading.Thread(target=start_multiplayer).start() 
+    server.close()
+    
+
+def join_game():
+    label.config(text="Skriv in IP-addressen du vill gå med i!")
+
+    global IP_adress, you
+    text = StringVar
+    IP_adress = Entry(window, textvariable=text)
+    IP_adress.place(relx=0.5, rely=0.5, anchor="center")
+    
+    IP_adress.bind("<Return>", connect_to_server)
+
+    you = players[1]
+
+
+def connect_to_server(e):
     global client
     host = e.widget.get()
 
     try:
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((host, PORT))
-        threading.Thread(target=start_multiplayer, args=(False, client,)).start()
+        threading.Thread(target=start_multiplayer).start()
+        IP_adress.place_forget()
+        IP_adress.unbind("<Return>")
     except:
         label.config(text="Felaktig adress försök igen")
-
-def host_game():
-    label.config(text=("IP-Adress: "+ str(HOST)))
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((HOST, PORT))
-    server.listen(1)
-    
-    client, addr = server.accept()
-    global you 
-    you = players[0]
-    threading.Thread(target=start_multiplayer, args=(True, client,)).start() 
-    server.close()
-
-
-
-def join_game():
-    label.config(text="Skriv in IP-addressen du vill gå med i!")
-
-    text = StringVar
-    IP_adress = Entry(window, textvariable=text)
-    IP_adress.place(relx=0.5, rely=0.5, anchor="center")
-    
-    IP_adress.bind("<Return>", return_imput)
-
-    global you
-    you = players[1]
 
 
 def hit_ships(row, column, team):   #funktion för när man ska skjuta skepp
@@ -64,66 +72,49 @@ def hit_ships(row, column, team):   #funktion för när man ska skjuta skepp
     #team = vilken spelare som kör
 
     #Tar in globala variabler som ska förändras i programmet
-    global turn
-    global points
+    global turn, points
 
+    if turn == you:  #Kollar om det är din tur
 
-    if turn == players[0]:  #Kollar om det är första spelarens tur
+           #Kollar om det är den första spelaren som trycker
 
-        if team == 1:   #Kollar om det är den första spelaren som trycker
+        if gameplay[row][column]["text"] == "":  #Kollar ifall rutan är tom
 
-            if board1_gameplay[row][column]["text"] == "":  #Kollar ifall rutan är tom
+            square = str(row + column)
+            client.send(square.encode('utf-8'))
 
-                if board2_setup[row][column]["text"] != "": #Kollar ifall den rutans koordinater matchar motståndarens utplacerade skepp
+            if board2_setup[row][column]["text"] != "": #Kollar ifall den rutans koordinater matchar motståndarens utplacerade skepp
                         
-                    board1_gameplay[row][column].config(text= "X", bg="red")    #fyller i rutan som en träff
+                gameplay[row][column].config(text= "X", bg="red")    #fyller i rutan som en träff
 
-                    points[0] += 1  #Ger poäng till spelare 1
+                points[0] += 1  #Ger poäng till spelare 1
                         
-                else:
+            else:
                 
-                    board1_gameplay[row][column].config(text="O", bg="grey")    #fyller i rutan som en miss
+                gameplay[row][column].config(text="O", bg="grey")    #fyller i rutan som en miss
+            
+            turn = players[1]   #Ser till att det blir varannan runda
+
+
+            if check_win(1) is True:    #Kollar om spelare 1 har vunnit och avbryter spelet
+                label.config(text=(players[0] + " Vann!"))
+                gameplay.place_forget()
+                setup.place_forget()
                 
-                turn = players[1]   #Ser till att det blir varannan runda
-
-
-                if check_win(1) is True:    #Kollar om spelare 1 har vunnit och avbryter spelet
-                    label.config(text=(players[0] + " Vann!"))
-                    frame1_gameplay.place_forget()
-                    frame2_gameplay.place_forget()
-                
-                else:   #Ifall spelare 1 inte har vunnit så går rundan över till nästa spelare
-                    label.config(text=(turn + " tur"))
-        
-
-        #Nästa del är samma som första delen men för spelare två
-
-        elif turn == players[1]:    
-        
-            if team == 2:
-
-                if board2_gameplay[row][column]["text"] == "":  
-
-                    if board1_setup[row][column]["text"] != "":
-                
-                        board2_gameplay[row][column].config(text= "X", bg="red")
-
-                        points[1] += 1 #Ger poäng till spelare 2
-
-                    else:
-                
-                        board2_gameplay[row][column].config(text="O", bg="grey")
-                
-                    turn = players[0]   #Ser till att det blir varannan runda
-                
-                    if check_win(2) is True:
-                        label.config(text=(players[1] + " Vann!"))
-                        frame1_gameplay.place_forget()
-                        frame2_gameplay.place_forget()
-                    else:
-                        label.config(text=(turn + " tur"))
-
+            else:   #Ifall spelare 1 inte har vunnit så går rundan över till nästa spelare
+                label.config(text=(turn + " tur"))
         return turn
+    else:
+        while True:
+            
+            data = client.recv(1024)
+            if not data:
+                client.close()
+                break
+            else:
+                data.decode('utf-8').split(',')
+                print(data)
+                turn = you
 
     
 def place_ships(row, column, team):
@@ -133,58 +124,29 @@ def place_ships(row, column, team):
     #team = vilken spelare som kör
 
     #Importerar de globala variablerna som ska ändras
-    global ships_player1
-    global ships_player2
+    global player_ships
 
 
-    if ships_player1 > 0 and team == 1 and board1_setup[row][column]["text"] == "": #Kollar så spelaren har skepp att sätta ut och trycker på en tom ruta
+    if player_ships > 0  and setup[row][column]["text"] == "": #Kollar så spelaren har skepp att sätta ut och trycker på en tom ruta
 
-        ships_player1 -= 1  #Tar bort ett av skeppen
-        label.config(text=("Du har " + str(ships_player1) + " skepp kvar att sätta ut!"))
-        board1_setup[row][column].config(text="S", bg="red")    #Ändrar rutan för att visa att skeppet är placerat
+        player_ships -= 1  #Tar bort ett av skeppen
+        label.config(text=("Du har " + str(player_ships) + " skepp kvar att sätta ut!"))
+        setup[row][column].config(text="S", bg="blue")    #Ändrar rutan för att visa att skeppet är placerat
 
 
-    elif ships_player1 >= 0 and board1_setup[row][column]["text"] != "":    #Ifall man trycker på ett skepp så ska det tas bort
+    elif player_ships >= 0 and setup[row][column]["text"] != "":    #Ifall man trycker på ett skepp så ska det tas bort
 
-        ships_player1 += 1  #Lägger till en till variabeln som berättar hur många som behövs sättas ut
+        player_ships += 1  #Lägger till en till variabeln som berättar hur många som behövs sättas ut
 
-        label.config(text=(players[0] + " har " + str(ships_player1) + " skepp kvar att sätta ut!"))    #Skriver ut hur många skepp som måste sättas ut
+        label.config(text=(players[0] + " har " + str(player_ships) + " skepp kvar att sätta ut!"))    #Skriver ut hur många skepp som måste sättas ut
 
-        board1_setup[row][column].config(text="",bg="#F0F0F0")  #Ändrar knappen till ordinarie stadie
+        setup[row][column].config(text="",bg="#F0F0F0")  #Ändrar knappen till ordinarie stadie
 
     #Ändrar färgen på "CONFIRM" knappen när det går att trycka
-    if ships_player1 <= 0:
-        player1_setup_button.config(bg="green")
+    if player_ships <= 0:
         setup_button.config(bg="green")
     else:
         setup_button.config(bg="#F0F0F0")
-        player1_setup_button.config(bg="#F0F0F0")
-
-    #Samma som första delen av funktionen men för spelare 2
-
-    if ships_player2 > 0 and team == 2 and board2_setup[row][column]["text"] == "":  
-
-        ships_player2 -= 1
-
-        label.config(text=(players[1] + " har " + str(ships_player2) + " skepp kvar att sätta ut!"))
-
-        board2_setup[row][column].config(text="S", bg="red")
-
-    
-    elif ships_player2 >= 0 and board2_setup[row][column]["text"] != "":
-
-        ships_player2 += 1
-
-        label.config(text=(players[1] + " har " + str(ships_player2) + " skepp kvar att sätta ut!"))
-
-        board2_setup[row][column].config(text="",bg="#F0F0F0")
-
-
-    if ships_player2 <= 0:
-        player2_setup_button.config(bg="green")
-    else:
-        player2_setup_button.config(bg="#F0F0F0")
-
 
 
 
@@ -209,47 +171,27 @@ def new_game():
 
         for column in range(5):
 
-            board1_setup[row][column] = Button(frame1, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: place_ships(row, column, 1))
+            setup[row][column] = Button(setup_frame, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: place_ships(row, column, 1))
 
-            board1_setup[row][column].grid(row=row,column=column)
-
-    for row in range(5):
-
-        for column in range(5):
-
-            board2_setup[row][column] = Button(frame2, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: place_ships(row, column, 2))
-
-            board2_setup[row][column].grid(row=row,column=column)
-
-
+            setup[row][column].grid(row=row,column=column)
 
 
     for row in range(5):
 
         for column in range(5):
 
-            board1_gameplay[row][column] = Button(frame1_gameplay, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: hit_ships(row, column, 1))
+            gameplay[row][column] = Button(gameplay_frame, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: hit_ships(row, column, 1))
 
-            board1_gameplay[row][column].grid(row=row,column=column)
+            gameplay[row][column].grid(row=row,column=column)
 
-    for row in range(5):
-
-        for column in range(5):
-
-            board2_gameplay[row][column] = Button(frame2_gameplay, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: hit_ships(row, column, 2))
-
-            board2_gameplay[row][column].grid(row=row,column=column)
 
 
     #Tar in alla globala variabler för att kunna nollställa dem
-    global ships_player1 
-    global ships_player2
-    global points
+    global player_ships, points
 
-    ships_player1 = 5
-    ships_player2 = 5
+    player_ships = 5
     
-    points = [0,0,0]
+    points = [0,0]
 
 
     player1_setup_button.config(bg="#F0F0F0") #Ser till att "CONFIRM" knappen inte är grön
@@ -265,62 +207,45 @@ def new_game():
     join_button.place(relx=0.8,rely=0.9,anchor="e")
 
 
+def confirm():  #Funktion för när man ska godkänna positionerna för skeppen
+    global player_ships
+    if player_ships <= 0:  #Kollar så alla skeppen är placerade
 
-  
+        
+        setup_frame.place_forget()   #Döljer den ordinarie brädet
+        setup_button.place_forget() #Tar bort "CONFIRM" knappen
 
-def fix_function(): #Ser till att när man har tryckt på confirm kan så kan inte skeppen tas bort eller flytta
+        if player_ships == 0:
+            player_ships -= 1 #Ser till att det inte går att ta bort skepp när man har tryckt
+
+        ready = "READY!"
+        client.send(ready.encode('utf-8'))
+        while True:
+            data = client.recv(1024)
+            if not data:
+                client.close()
+                break
+            else:
+                message = data.decode('utf-8')
+                if message == ready:
+                    break
+        gameplay_frame.place(relx= 0, rely= 1, anchor="sw")
+        setup_frame.place(relx=1, rely=1, anchor="se")
+
+
+        label.config(text=(players[0] + " tur"))
+
+
+def start_multiplayer():
     
-    global ships_player1
-    global ships_player2
+    setup_frame.place(relx= 0, rely= 1, anchor="sw") #Vilken position brädet har
 
-    if ships_player1 >= 0:
-        ships_player1 -= 1
-
-    else:
-        ships_player2 -= 1
-
-
-def confirm(team):  #Funktion för när man ska godkänna positionerna för skeppen
+    label.config(text=(players[0] + " har " + str(player_ships) + " skepp kvar att sätta ut!"))
     
-    if ships_player1 <= 0:  #Kollar så alla skeppen är placerade
+    #restart_button.place(relx=0.5,rely=0.2,anchor="n")
 
-        if team == 1: #Kollar så att det är första spelaren som godkänner
-            frame1.place_forget()   #Döljer den ordinarie brädet
-            player1_setup_button.place_forget() #Tar bort "CONFIRM" knappen
-            player2_setup_button.place(relx=0.5,rely=0.5,anchor="center") #Sätter ut nästa spelares "CONFIRM" knapp
-            fix_function()  #Ser till att det inte går att ta bort skepp när man har tryckt
-            label.config(text=(players[1] + " har " + str(ships_player2) + " skepp kvar att sätta ut!")) #Skriver ut att nästa spelare ska sätta ut
-            frame2.place(relx= 1, rely= 1, anchor="se")
-
-
-    if ships_player2 <= 0:  #Kollar så alla skeppen är placerade
-        if team == 2: #Kollar så det är den andra personen som confirmar
-            frame2.place_forget()
-            frame1_gameplay.place(relx=0,rely=1,anchor="sw") #Sätter ut det nya brädet för att skjuta
-            frame2_gameplay.place(relx=1,rely=1,anchor="se")
-            player2_setup_button.place_forget()
-            fix_function()
-            label.config(text=(players[0] + " tur"))
-
-
-def start_multiplayer(host, client):
-    if host:
-        frame1.place(relx= 0, rely= 1, anchor="sw") #Vilken position brädet har
-
-        label.config(text=(players[0] + " har " + str(ships_player1) + " skepp kvar att sätta ut!"))
+    setup_button.place(relx=0.5,rely=0.5,anchor="center") #Placeras ut direkt
     
-        restart_button.place(relx=0.5,rely=0.2,anchor="n")
-
-        player1_setup_button.place(relx=0.5,rely=0.5,anchor="center") #Placeras ut direkt
-    
-    else:
-        frame2.place(relx=0, rely=1, anchor="sw")
-
-        label.config(text=(players[1] + " har " + str(ships_player1) + " skepp kvar att sätta ut!"))
-    
-        restart_button.place(relx=0.5,rely=0.2,anchor="n")
-
-        player2_setup_button.place(relx=0.5, rely=0.5, anchor="center")
 
 
 
@@ -347,7 +272,7 @@ restart_button = Button(text="restart", font=("consoloas", 20), command=new_game
 
 
 #En tom lista för knapparna att läggas in i en 5x5 storlek
-board1_setup = [[0,0,0,0,0],
+setup =         [[0,0,0,0,0],
                 [0,0,0,0,0],
                 [0,0,0,0,0],
                 [0,0,0,0,0],
@@ -355,7 +280,7 @@ board1_setup = [[0,0,0,0,0],
                 ]
 
 
-board2_setup = [[0,0,0,0,0],
+gameplay =      [[0,0,0,0,0],
                 [0,0,0,0,0],
                 [0,0,0,0,0],
                 [0,0,0,0,0],
@@ -364,35 +289,16 @@ board2_setup = [[0,0,0,0,0],
 
 
 
-#Bräde för själva spelgången när man ska skjuta
-board1_gameplay =   [[0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                    ]
-
-
-board2_gameplay =   [[0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                    [0,0,0,0,0],
-                ]
 
 
 #Lägger även in detta i en frame för att kunna presentera brädet och kunna ta bort och lägga till enskilda bräden
-frame1 = Frame(window)
+setup_frame = Frame(window)
 
-frame2_gameplay = Frame(window)
-
-frame1_gameplay = Frame(window)
-
-frame2 = Frame(window)
+gameplay_frame = Frame(window)
 
 #Knapp för att godkänna postionen av skeppen
 
-setup_button = Button(text="Confirm", font=("consoalas", 20), command=lambda: confirm(3))
+setup_button = Button(text="Confirm", font=("consoloas", 20), command=lambda: confirm())
 
 player1_setup_button = Button(text="Confirm", font=("consoloas", 20), command=lambda :confirm(1)) 
 
@@ -405,36 +311,18 @@ for row in range(5):
 
     for column in range(5):
 
-        board1_setup[row][column] = Button(frame1, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: place_ships(row, column, 1))
+        setup[row][column] = Button(setup_frame, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: place_ships(row, column, you))
 
-        board1_setup[row][column].grid(row=row,column=column)
-
-for row in range(5):
-
-    for column in range(5):
-
-        board2_setup[row][column] = Button(frame2, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: place_ships(row, column, 2))
-
-        board2_setup[row][column].grid(row=row,column=column)
-
-
+        setup[row][column].grid(row=row,column=column)
 
 
 for row in range(5):
 
     for column in range(5):
 
-        board1_gameplay[row][column] = Button(frame1_gameplay, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: hit_ships(row, column, 1))
+        gameplay[row][column] = Button(gameplay_frame, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: hit_ships(row, column, you))
 
-        board1_gameplay[row][column].grid(row=row,column=column)
-
-for row in range(5):
-
-    for column in range(5):
-
-        board2_gameplay[row][column] = Button(frame2_gameplay, text="", font=("consolas", 40), width=3, height=1, command= lambda row=row, column=column: hit_ships(row, column, 2))
-
-        board2_gameplay[row][column].grid(row=row,column=column)
+        gameplay[row][column].grid(row=row,column=column)
 
 window.mainloop()
 
