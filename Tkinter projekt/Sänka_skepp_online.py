@@ -1,15 +1,14 @@
 from tkinter import *
 import socket
 import threading
-import time
 
 players = ["MATS", "TjokisMILLA"]   #En lista för att kunna ändra namnen på spelarna som kör
 
-you = players[0]
+you = None  #Vilken spelare du är bestäms senare
 
-turn = players[0] #Spelare 1 börjar
+turn = players[0]   #Spelare 1 börjar
 
-player_ships = 5
+player_ships = 5    # antalet skepp man ska placera ut
  
 points = [0, 0]     #Poängräknare [0] = spelare 1, [1] = spelare 2, [2] = AI
 
@@ -24,14 +23,15 @@ WIN = "win"
 client = None
 
 def host_game():
-    label.config(text=("Tryck [ENTER] för att lyssna på IP-Adress: "+ str(HOST)))
-    window.bind("<Return>", start_listen)
+    label.config(text=("Lyssna på IP-Adress: "+ str(HOST)))
+    listen_button.place(relx=0.5,rely=0.9,anchor="s")
 
     global you 
     you = players[0]
 
 def start_listen(e):
     global client
+    listen_button.place_forget()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
     server.listen(1)
@@ -182,7 +182,7 @@ def confirm():  #Funktion för när man ska godkänna positionerna för skeppen
     if player_ships <= 0:  #Kollar så alla skeppen är placerade
 
         
-        setup_frame.place_forget()   #Döljer den ordinarie brädet
+        setup_frame.place_forget()  #Döljer den ordinarie brädet
         setup_button.place_forget() #Tar bort "CONFIRM" knappen
 
         if player_ships == 0:
@@ -227,8 +227,6 @@ def start_multiplayer():
     setup_frame.place(relx= 0, rely= 1, anchor="sw") #Vilken position brädet har
 
     label.config(text=(players[0] + " har " + str(player_ships) + " skepp kvar att sätta ut!"))
-    
-    #restart_button.place(relx=0.5,rely=0.2,anchor="n")
 
     setup_button.place(relx=0.5,rely=0.5,anchor="center") #Placeras ut direkt
     
@@ -252,7 +250,7 @@ host_button.place(relx=0.2,rely=0.9,anchor="w")
 join_button = Button(window, text="Join", command=lambda : [join_button.place_forget(), host_button.place_forget(), join_game()])
 join_button.place(relx=0.8,rely=0.9,anchor="e")
 
-
+listen_button = Button(window, text="Start Listening...", command=start_listen)
 
 #En tom lista för knapparna att läggas in i en 5x5 storlek
 setup =         [[0,0,0,0,0],
