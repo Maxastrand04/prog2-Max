@@ -2,7 +2,7 @@ from tkinter import *
 import socket
 import threading
 
-players = ["MATS", "TjokisMILLA"]   #En lista för att kunna ändra namnen på spelarna som kör
+players = ["Host", "Joiner"]   #En lista för att kunna ändra namnen på spelarna som kör
 
 you = None  #Vilken spelare du är bestäms senare
 
@@ -23,21 +23,19 @@ WIN = "win"
 client = None
 
 def host_game():
-    label.config(text=("Lyssna på IP-Adress: "+ str(HOST)))
-    listen_button.place(relx=0.5,rely=0.9,anchor="s")
+    label.config(text=("Lyssnar på IP-Adress: "+ str(HOST)))
+    
 
+    threading.Thread(target=start_listen).start()
     global you 
     you = players[0]
 
-def start_listen(e):
+def start_listen():
     global client
-    listen_button.place_forget()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
     server.listen(1)
-    print("Väntar på anslutning...")
     client, addr = server.accept()
-    print("Ansluten!")
     
     threading.Thread(target=start_multiplayer).start() 
     server.close()
@@ -102,33 +100,46 @@ def hit_ships(row, column):   #funktion för när man ska skjuta skepp
                     
                     gameplay[row][column].config(text="O", bg="grey")    #fyller i rutan som en miss
 
-
             if check_win(1) is True:    #Kollar om spelare 1 har vunnit och avbryter spelet
                 label.config(text=(players[0] + " Vann!"))
                 gameplay.place_forget()
                 setup.place_forget()
                 
-            else:   #Ifall spelare 1 inte har vunnit så går rundan över till nästa spelare
-                label.config(text=(turn + " tur"))
+
+            if you == players[0]:
+                turn = players[1]
+            else:
+                turn = players[0]
+            
+            label.config(text=turn + "s tur")
             
 
             #När din tur är slut så väntar man på att motståndaren ska göra sitt drag
-            data = client.recv(1024)
-            if not data:
-                client.close()
-            else:
-                row, column = data.decode(FORMAT).split(',')
-                row = int(row)
-                column = int(column)
-                print(row, column)
-                if setup[row][column]["text"] != "":
-                    client.send(HIT.encode(FORMAT))
-                elif setup[row][column]["text"] == "":
-                    client.send(MISS.encode(FORMAT))
-                turn = you
-            return turn
+            threading.Thread(target=wait_for_move).start()
 
-    
+
+def wait_for_move():
+    global turn
+    data = client.recv(1024)
+    if not data:
+        client.close()
+    else:
+        row, column = data.decode(FORMAT).split(',')
+        row = int(row)
+        column = int(column)
+        print(row, column)
+        if setup[row][column]["text"] != "":
+            client.send(HIT.encode(FORMAT))
+            setup[row][column].config(text= "X", bg="red")
+
+        elif setup[row][column]["text"] == "":
+            client.send(MISS.encode(FORMAT))
+            setup[row][column].config(text= "O", bg="grey")
+
+        turn = you
+        label.config(text=you + "s tur")
+
+
 def place_ships(row, column, team):
     
     #row = vilken rad
@@ -188,38 +199,30 @@ def confirm():  #Funktion för när man ska godkänna positionerna för skeppen
         if player_ships == 0:
             player_ships -= 1 #Ser till att det inte går att ta bort skepp när man har tryckt
 
-        ready = "READY!"
-        client.send(ready.encode(FORMAT))
-        while True:
-            data = client.recv(1024)
-            if not data:
-                client.close()
-                break
-            else:
-                message = data.decode(FORMAT)
-                if message == ready:
-                    break
         gameplay_frame.place(relx= 0, rely= 1, anchor="sw")
         setup_frame.place(relx=1, rely=1, anchor="se")
 
+        threading.Thread(target=wait_for_confirm)
 
-        label.config(text=(players[0] + " tur"))
+        label.config(text=(players[0] + "s tur"))
 
         global turn
         if turn != you:
-            
-            data = client.recv(1024)
-            if not data:
-                client.close()
-            else:
-                row, column = data.decode(FORMAT).split(',')
-                row = int(row)
-                column = int(column)
-                if setup[row][column]["text"] != "":
-                    client.send(HIT.encode(FORMAT))
-                elif setup[row][column]["text"] == "":
-                    client.send(MISS.encode(FORMAT))
-                turn = you
+            threading.Thread(target=wait_for_move).start()
+
+
+def wait_for_confirm():
+    ready = "READY!"
+    client.send(ready.encode(FORMAT))
+    while True:
+        data = client.recv(1024)
+        if not data:
+            client.close()
+            break
+        else:
+            message = data.decode(FORMAT)
+            if message == ready:
+                break
 
 
 def start_multiplayer():
@@ -249,8 +252,6 @@ host_button.place(relx=0.2,rely=0.9,anchor="w")
 
 join_button = Button(window, text="Join", command=lambda : [join_button.place_forget(), host_button.place_forget(), join_game()])
 join_button.place(relx=0.8,rely=0.9,anchor="e")
-
-listen_button = Button(window, text="Start Listening...", command=start_listen)
 
 #En tom lista för knapparna att läggas in i en 5x5 storlek
 setup =         [[0,0,0,0,0],
