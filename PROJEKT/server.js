@@ -1,4 +1,5 @@
 const express = require('express');
+const mime = require('mime')
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -44,3 +45,9 @@ io.on('connection', socket => {
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
   });
+
+app.get('/styles.css', function(req, res) {
+  var file = __dirname + '/public/styles.css';
+  res.setHeader('Content-Type', mime.lookup(file));
+  res.sendFile(file);
+});
