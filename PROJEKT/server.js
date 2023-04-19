@@ -1,25 +1,46 @@
-const { Server } = require("socket.io")
-const io = new Server(3000, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-})
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 
-const users = {}
+let players = []
+
+app.use(express.static('public'))
+
+http.listen(3000, function(){
+    console.log('listening on *:3000');
+  });
 
 io.on('connection', socket => {
-    socket.on('new-user', name => {
-        users[socket.id] = name
-        console.log('user-connected', name)
+    players.push(`${socket.id}`)
+    if (players.length === 1){
+        console.log("player one connected")    
+    } else if (players.length === 2){
+        console.log("player two connected")
+        http.close()
+        console.log("server closed!")
+    } 
+
+    
+    socket.on('clicked', data => {
+        let playernumber = players.indexOf(`${socket.id}`) 
+        playernumber += 1
+        console.log(`${playernumber}: ${data}`)
+        socket.emit('response', 'response from server!')
     })
-    socket.on('send-chat-message', message => {
-        socket.broadcast.emit('chat-message', {
-            message: message, 
-            name:users[socket.id]})
-    })
+
     socket.on('disconnect', () => {
-        console.log('user-disconnected', users[socket.id])
-        delete users[socket.id]
+        let playernumber = players.indexOf(`${socket.id}`)
+        players.splice(playernumber, 1)
+        console.log(`player ${playernumber + 1} disconnected!`)
+        http.close()
+        http.listen(3000, function(){
+            console.log('listening on *:3000');
+          });
     })
 })
+
+
+app.get('/', function(req, res){
+    res.sendFile(__dirname + '/index.html');
+  });
