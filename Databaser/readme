@@ -1,0 +1,17 @@
+I databasuppgiften har jag gjort en applikation där man kan reservera bord från resaurangens sida
+
+Här kan man välja: Namn, tid, dag och sällskapsstorlekar
+
+Programmet kan välja att lägga till, ta bort och ändra data som finns i databasen
+
+Den orienterar sig med hjälp av  ett unikt boknings ID som ser till att man raderar / ändrar rätt bokning
+
+När man lägger till en bokning så kollar den efter det största boknings-Id:et och ökar med ett vilket gör att det kommer alltid vara unikt
+
+Programmet har rullgardinsmenyer, en tkinter Entry för namn och en Treeview för att visa bokningarna
+
+Förbättringsmöjligheter: 
+
+1. boka datum istället för veckodagar
+2. tiden i min databas visar H:M:S medans i programmet så är det bara H:M
+3. Design av programmet, bl a att göra Treeview menyn skrollbar.
