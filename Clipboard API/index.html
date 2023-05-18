@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="mydiv">
+        <button type="button" id="copyButton" data-clipboard-text="Hello, world!">Copy text</button>
+    </div>
+    <script>
+
+        // Get the copy button element by its ID
+const copyButton = document.getElementById("copyButton");
+console.log(copyButton)
+
+// Add a click event listener to the button
+copyButton.addEventListener("click", function() {
+  // Get the text to copy from the button's data attribute
+  var textToCopy = copyButton.getAttribute("data-clipboard-text");
+
+  // Use the Clipboard API to copy the text to the clipboard
+  navigator.clipboard.writeText(textToCopy);
+});
+
+    </script>
+</body>
+</html>

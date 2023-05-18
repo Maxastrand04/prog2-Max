@@ -12,28 +12,24 @@
 </head>
 <body>
 <div step-of-program>
-    <form id="step1">
+    <form id="IP-Address-page">
+    
         <div class="card">
-            <h3 class="form-titel">Skicka inbjudan</h3>
-            <div class="form-group">
-                <label for="name">Namn</label>
-                <input type="text" name="name" id="name">
-            </div>
-            <div class="form-group">
-                <label for="email">Epost att skicka till</label>
-                <input type="email" name="email" id="email">
-            </div>
-            <div class="form-group">
-                <label for="message">meddelande</label>
-                <input type="text" name="message" id="message">
-            </div>
-            <button type="button" class="button" id="form-send">Skicka</button>
+
+            <h3 class="form-titel">IP-ADDRESS</h3>
+            <p>Tryck på addressen för att kopiera</p>
+            <button type="button" class="button" id="IP-Address" data-clipboard-text=""></button>   
+            <button type="button" class="button" id="close">STÄNG</button>
+        
         </div>
+    
     </form>
 
-    <div id="step2">
+    <div id="Gameplay">
+
         <div id="board"></div>
-        <button type="button" id="invite" class="button">Bjud in</button>
+        <button type="button" id="getIP" class="button">IP-ADDRESS</button>
+    
     </div>
 </div>
 </body>

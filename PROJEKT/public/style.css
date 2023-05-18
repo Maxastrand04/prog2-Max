@@ -24,20 +24,29 @@ body {
 
 /* design av knapparna */
 .button{
+    display: block;
+    margin-bottom: 10px;
+    padding: .5rem;
     background-color: rgb(112, 54, 42);
     border: 1px solid rgb(161, 161, 161);
     border-radius: 3px;
     color: rgb(161, 161, 161);
 }
 
+/* Ändrar färgen när knappen trycks ned*/
+button:active {
+    background-color: rgb(83, 36, 26);
+  }
+  
+
 /* knappen för att bjuda in */
-#invite {
+#getIP {
     float: right;
     margin-right: 5%;
 }
 
 /* ser till att spelet inte är igång när inbjudan är framme*/
-#step2 {
+#IP-Address-page {
     display: none;
 }
 
@@ -65,11 +74,11 @@ body {
 
 .boardLines {
     height: 50px;
-    width: 400px;
+    width: 395px;
 }
 
 #board{
-    margin-left:200px;
+    margin-left: 200px;
     margin-right:auto;
     float: left;
     border: 2px solid white;

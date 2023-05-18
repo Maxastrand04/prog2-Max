@@ -1,6 +1,22 @@
 
 
-export function kingMove(xstart, ystart, xfinnish, yfinnish) {
+export function kingMove(xstart, ystart, xfinnish, yfinnish, shortcastle, longcastle) {
+
+    const shortCastleTrue = 'shortCastleAllowed'
+    const longCastleTrue = 'longCastleAllowed'
+
+    if (shortcastle === true){
+        if (xfinnish - xstart === 2 && ystart === yfinnish){
+            return shortCastleTrue
+        }
+
+    }
+
+    if (longcastle === true){
+        if (xstart - xfinnish === 2 && ystart === yfinnish){
+            return longCastleTrue
+        }
+    }
 
     if (Math.abs(xstart - xfinnish) <= 1 && Math.abs(ystart - yfinnish) <= 1){
         return true
@@ -126,4 +142,18 @@ export function pawnMove(xstart, ystart, xfinnish, yfinnish, kill, team, firstmo
             }
         }
     }
+}
+
+
+export function typeOfMove(pieceType){
+
+    const king = ['horizontal', 'vertical', 'diagonal', '1-step']
+    const queen = ['horizontal', 'vertical', 'diagonal']
+    const bishop = ['diagonal']
+    const rook = ['horizontal', 'vertical']
+    const knight = ['L-shape']
+    const pawn = ['forward', 'diagonal', '1-step']
+
+    return eval(pieceType)
+
 }
