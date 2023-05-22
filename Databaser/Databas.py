@@ -156,21 +156,21 @@ def save_reservation():
     if get_values() == False:
         return
     else:
-        values = get_values()
+        reservation_values = get_values()
 
     # Bestämmer vilket id den nya reservationen ska ha genom att kolla vad den sista reservationen har för id och öka med ett
     try:
         last_item = treeview.get_children()[-1]
-        values = treeview.item(last_item, 'values')
-        id = int(values[0]) + 1
+        last_item_values = treeview.item(last_item, 'values')
+        id = int(last_item_values[0]) + 1
 
     except:     # Om det inte finns någon reservation får den id nummer 1
         id = 1
     
     # values[0] = namn, values[1] = tid, values[2] = antal, values[3] = veckodag
-    values = (id, values[0], values[1], values[2], values[3])
+    execute_values = (id, reservation_values[0], reservation_values[1], reservation_values[2], reservation_values[3])
 
-    cursor.execute(query, values)
+    cursor.execute(query, execute_values)
 
     mydb.commit()
 
