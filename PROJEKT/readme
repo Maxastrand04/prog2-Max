@@ -1,6 +1,31 @@
-saker att göra
+HARDCORE shack
 
-transperant när det inte är din tur
-när du hamnar i shack så kan det komma ett meddelande
+Ett html, javascript och css projekt som använder sig av express, ip och socket.io bibliotek
 
-När spelet är slut så kan det vara tydligt att det är GAME OVER
+Spelet är byggt från html objekt istället för en canvas s varje drag är ett fysiskt html objekt som flyttas
+
+Varje ruta är programmerade att kolla så att alla drag som görs följer reglerna
+
+Spelet är byggt på htmls drag and drop API och programmet ser därmed till att hemsidan tillåter detta 
+
+Programmet körs från server.js filen och kommer åt klientscriptet genom public mappen
+
+Alla regler i shack finns förutom SHACK. Detta gör att spelet kommer inte varna för att du hamnar i shack eller är i shack och kungen kan bli tagen.
+Men blir kungen tagen så förlorar du direkt och "game over" skärmen dyker upp
+
+Vid godkänt drag så skickas koordinaterna från var pjäsen börjar och där den slutar för att den andra klienten
+ska se draget på sitt bräde. 
+
+Brädet är spegelvänt men så är även koordinaterna vilket gör att alla dragen (som har specifika koordinater)
+fungerar oavsett om du är vit eller svart och behöver inte konverteras för att fungera. 
+
+Detta projekt använder sig av vanlig javascript/html och även en socket.io server med nodemon
+men det använder inte någon form utav databas men alla dragen sparas i servern för att klienter 
+ska kunna lämna och hoppa in igen.
+
+Förbättringsmöjligheter:
+
+1. Fixa shack och shackmatt
+2. Fixa en starta om knapp när spelet är över 
+3. När bonden kommer hela vägen så kan man välja vilken pjäs det ska bli
+4. En klocka för tänketid
