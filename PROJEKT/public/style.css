@@ -50,6 +50,7 @@ button:active {
     display: none;
 }
 
+/* Storlek på pjäserna*/
 .piece {
     height: 50px;
     width: 50px;
@@ -72,14 +73,39 @@ button:active {
     height: 48px;
 }
 
+/* Storlek av raderna för att rutorna ska få plats i brädet */ 
 .boardLines {
     height: 50px;
     width: 395px;
 }
 
+/* Placering av spelbrädet*/
 #board{
     margin-left: 200px;
     margin-right:auto;
     float: left;
     border: 2px solid white;
+}
+
+/* När det inte är din tur så blir spelbrädet genomskinligt*/
+.boardwait{
+    opacity: 0.6;
+}
+
+#game-over-screen{
+    display: none;
+}
+
+#game-over{
+    display: flex;
+    border: 2px solid white;
+    border-radius: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#return-to-board{
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
 }

@@ -2,27 +2,31 @@
 
 export function kingMove(xstart, ystart, xfinnish, yfinnish, shortcastle, longcastle) {
 
-    const shortCastleTrue = 'shortCastleAllowed'
-    const longCastleTrue = 'longCastleAllowed'
 
     if (shortcastle === true){
         if (xfinnish - xstart === 2 && ystart === yfinnish){
-            return shortCastleTrue
+            return {
+                shortCastle: true,
+                approvedMove: true
+            }
         }
 
     }
 
     if (longcastle === true){
         if (xstart - xfinnish === 2 && ystart === yfinnish){
-            return longCastleTrue
+            return {
+                longCastle: true,
+                approvedMove: true
+            }
         }
     }
 
     if (Math.abs(xstart - xfinnish) <= 1 && Math.abs(ystart - yfinnish) <= 1){
-        return true
+        return {approvedMove:true}
 
     } else{
-        return false
+        return {approvedMove:false}
     }
 }
 
@@ -88,72 +92,104 @@ export function rookMove(xstart, ystart, xfinnish, yfinnish){
 
 export function pawnMove(xstart, ystart, xfinnish, yfinnish, kill, team, firstmove){
 
+    const enPassant = "en Passant"
+
     if (team === "black"){
         if(kill == true){
             if(Math.abs(xstart-xfinnish) === 1 && yfinnish - ystart === 1){
-                return true
+                
+                // Om bonden kommer fram hela vägen så uppgraderas den till drottning
+                if (yfinnish == 7){
+                    return {
+                        approvedMove: true,
+                        promotion: true
+                    }
+                }
+                return {approvedMove:true}
     
             } else{
-                return false
+                return {approvedMove:false}
             }
         } 
         else {
             if ( firstmove === true){
-                if (xstart === xfinnish && yfinnish - ystart ==1 || yfinnish - ystart == 2 ){
-                    return true
+                if (xstart === xfinnish && yfinnish - ystart === 1){
+                    return {approvedMove: true}
+                } else if (xstart === xfinnish && yfinnish - ystart === 2 ){
+                    return {
+                        enPassant: true,
+                        approvedMove: true
+                    }
                 }
                 else {
-                    return false
+                    return {approvedMove:false}
                 }
             }
 
-            else if(xstart === xfinnish && yfinnish - ystart === 1){
-                return true
+            else if (xstart === xfinnish && yfinnish - ystart === 1){
+                
+                // Om bonden kommer fram hela vägen så uppgraderas den till drottning
+                if (yfinnish == 7){
+                    return {
+                        approvedMove: true,
+                        promotion: true
+                    }
+                }
+                return {approvedMove:true}
+                
     
             } else {
-                return false
+                return {approvedMove:false}
             }
         }
     }
     else if(team === "white"){
         if(kill == true){
             if(Math.abs(xstart-xfinnish) === 1 && yfinnish - ystart === -1){
-                return true
+                // Om bonden kommer fram hela vägen så uppgraderas den till drottning
+                if (yfinnish == 0){
+                    return {
+                        approvedMove: true,
+                        promotion: true
+                    }
+                }
+                return {approvedMove:true}
     
             } else{
-                return false
+                return {approvedMove:false}
             }
         } 
         else {
             if ( firstmove === true){
-                if (xstart === xfinnish && yfinnish - ystart === -1 || yfinnish - ystart === -2 ){
-                    return true
+                if (xstart === xfinnish && yfinnish - ystart === -1){
+                    return {approvedMove:true}
+                } 
+                else if (xstart === xfinnish && yfinnish - ystart === -2 ){
+                    return{ 
+                        enPassant: true,
+                        approvedMove:true
+                        
+                    }
                 }
                 else {
-                    return false
+                    return {approvedMove:false}
                 }
             }
 
             else if(xstart === xfinnish && yfinnish - ystart === -1){
-                return true
+                
+                // Om bonden kommer fram hela vägen så uppgraderas den till drottning
+                if (yfinnish == 0){
+                    return {
+                        approvedMove: true,
+                        promotion: true
+                    }
+                }
+                return {approvedMove:true}
     
             } else {
-                return false
+                return {approvedMove:false}
             }
         }
     }
-}
-
-
-export function typeOfMove(pieceType){
-
-    const king = ['horizontal', 'vertical', 'diagonal', '1-step']
-    const queen = ['horizontal', 'vertical', 'diagonal']
-    const bishop = ['diagonal']
-    const rook = ['horizontal', 'vertical']
-    const knight = ['L-shape']
-    const pawn = ['forward', 'diagonal', '1-step']
-
-    return eval(pieceType)
-
 }

@@ -24,6 +24,9 @@ http.listen(3000, function(){
 
 io.on('connection', socket => {
 
+  let enPassant = false   // Variabel för att veta vilken bonde som är aktiv för att bli tagen i en passant
+
+
   //Skickar IP-adressen till klienten så den kan visas för klienten
   socket.emit('Get-server-IP', IP_Address)
 
@@ -31,14 +34,14 @@ io.on('connection', socket => {
   // De vita dragen
   if (white_moves.length > 0){
 
-    for (i = 0; i < white_moves.length; i += 4){
+    for (i = 0; i < white_moves.length; i += 5){
 
-      socket.emit('approved-move', white_moves[i], white_moves[i+1], white_moves[i+2], white_moves[i+3])
+      socket.emit('approved-move', white_moves[i], white_moves[i+1], white_moves[i+2], white_moves[i+3], white_moves[i+4])
       
       // Och de svarta
       if (i < black_moves.length){
-      
-        socket.emit('approved-move', black_moves[i], black_moves[i+1], black_moves[i+2], black_moves[i+3])
+
+        socket.emit('approved-move', black_moves[i], black_moves[i+1], black_moves[i+2], black_moves[i+3], black_moves[i+4])
       
       }
     }
@@ -48,7 +51,7 @@ io.on('connection', socket => {
     if (clientArray[0] === 0){
   
       clientArray[0] = `${socket.id}`
-      console.log('player one connected')
+      console.log('player 1 connected')
       socket.emit('type-of-player', clientArray)  
     } 
     
@@ -56,7 +59,7 @@ io.on('connection', socket => {
     else if (clientArray[1] === 0){
 
       clientArray[1] = `${socket.id}`
-      console.log('player two connected') 
+      console.log('player 2 connected') 
       socket.emit('type-of-player', clientArray)
     
     } 
@@ -64,24 +67,25 @@ io.on('connection', socket => {
     //Om en tredje klient hoppar in så slängs den ut lika fort
     else if (clientArray[0] != 0 && clientArray[1] != 0){
     
-      socket.disconnect('Stop right there')
+      socket.disconnect()
       console.log('server CLOSED!')
       return;
     
     }
 
     //Lyssnar efter att en förflyttning görs och kollar om det är den personens tur
-    socket.on('move', (startx, starty, endx, endy, team) =>{
+    socket.on('move', (startx, starty, endx, endy, team, specialMove) =>{
     
       //Om det är din tur
       if (team == turn){
     
         socket.emit('turn-check', true)
-        socket.broadcast.emit('approved-move', startx, starty, endx, endy)
+        socket.broadcast.emit('approved-move', startx, starty, endx, endy, specialMove)
         
         
         const move = [startx, starty, endx, endy]
         eval(`${team}_moves.push(${move})`)
+        eval(team + "_moves.push('" + specialMove + "')")
         
     
         if (turn == 'white'){
@@ -96,7 +100,6 @@ io.on('connection', socket => {
       //Om det inte är din tur
       else {
         socket.emit('turn-check', false )
-        console.log('not your turn')
       }
 
     })
